@@ -23,6 +23,24 @@ set(CMAKE_C_STANDARD 11)
 #add_compile_options(-mfloat-abi=hard -mfpu=fpv4-sp-d16)
 #add_link_options(-mfloat-abi=hard -mfpu=fpv4-sp-d16)
 
+# -------------------- 关键修改：单精度 FPU 和 DSP 配置 --------------------
+# 硬件浮点配置（单精度）
+add_compile_definitions(
+        ARM_MATH_CM7;                  # 指定 CMSIS-DSP 为 M7 内核
+        ARM_MATH_MATRIX_CHECK;
+        ARM_MATH_ROUNDING
+)
+add_compile_options(
+        -mfloat-abi=hard
+        -mfpu=fpv5-sp-d16             # 单精度 FPU（关键修改：sp 表示单精度）
+        -mcpu=cortex-m7               # 指定 M7 架构
+)
+add_link_options(
+        -mfloat-abi=hard
+        -mfpu=fpv5-sp-d16
+        -mcpu=cortex-m7
+)
+
 #Uncomment for software floating point
 #add_compile_options(-mfloat-abi=soft)
 
@@ -30,7 +48,7 @@ add_compile_options(-mcpu=cortex-m7 -mthumb -mthumb-interwork)
 add_compile_options(-ffunction-sections -fdata-sections -fno-common -fmessage-length=0)
 
 # uncomment to mitigate c++17 absolute addresses warnings
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register")
 
 # Enable assembler files preprocessing
 add_compile_options($<$<COMPILE_LANGUAGE:ASM>:-x$<SEMICOLON>assembler-with-cpp>)
@@ -50,10 +68,25 @@ else ()
 endif ()
 
 include_directories(Core/Inc Drivers/STM32H7xx_HAL_Driver/Inc Drivers/STM32H7xx_HAL_Driver/Inc/Legacy Drivers/CMSIS/Device/ST/STM32H7xx/Include Drivers/CMSIS/Include USB_DEVICE/App USB_DEVICE/Target Middlewares/ST/STM32_USB_Device_Library/Core/Inc Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc Middlewares/Third_Party/FreeRTOS/Source/include Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F Drivers/CMSIS/RTOS2/Include)
-include_directories(USER)
+include_directories(
+        USER
+        USER/Task/Ins
+        USER/Task/Motor
+        USER/Task/Cmd
+        USER/Task/Chassis
+        USER/Task/Gimbal
+        USER/Task/Shoot
+        USER/Task/Transmission
+        USER/Task/USART_Recive
+        USER/Task/Referee
+        USER/Task/Supercap
+        USER/Task/Robot_Config
+)
 add_definitions(-DDEBUG -DUSE_PWR_LDO_SUPPLY -DUSE_HAL_DRIVER -DSTM32H723xx)
 
-file(GLOB_RECURSE SOURCES "Core/*.*" "Middlewares/*.*" "Drivers/*.*" "USB_DEVICE/*.*" "USER/*.*")
+file(GLOB_RECURSE SOURCES "Core/*.*" "Middlewares/*.*" "Drivers/*.*" "USB_DEVICE/*.*"
+        "USER/*.*"
+)
 
 set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32H723VGTX_FLASH.ld)
 
@@ -62,6 +95,9 @@ add_link_options(-mcpu=cortex-m7 -mthumb -mthumb-interwork)
 add_link_options(-T ${LINKER_SCRIPT})
 
 add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
+
+## 链接DSP矩阵运算库,libarm_cortexM7lfsp_math单精度DSP库，
+#target_link_libraries(${PROJECT_NAME}.elf ${CMAKE_SOURCE_DIR}/Middlewares/ST/ARM/DSP/Lib/libarm_cortexM7lfsp_math.a)
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
