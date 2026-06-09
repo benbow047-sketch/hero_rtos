@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/USER/Algorithm/Crc/crc8_crc16.c" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/USER/Algorithm/Fifo/fifo.c" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/USER/Algorithm/Ui_algorithm/ui_algorithm.c" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/USER/Algorithm/User_Lib/user_lib.c" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/USER/Module/Bmi088/BMI088Middleware.c" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/USER/Module/Bmi088/BMI088driver.c" charset="GBK" />
     <file url="file://$PROJECT_DIR$/USER/Module/Msg/drv_msg.c" charset="GBK" />
     <file url="file://$PROJECT_DIR$/USER/Module/Msg/drv_msg.h" charset="GBK" />
   </component>

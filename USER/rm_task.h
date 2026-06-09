@@ -10,6 +10,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "rm_config.h"
 
 /* ==================== Task Switches ==================== */
 #define BSP_USING_INS_TASK

@@ -1,0 +1,52 @@
+# Claude
+.claude/
+.mcp.json
+CLAUDE_OCTOLINK.md
+claude-octolink-mcp.json
+
+# Build output
+build/
+cmake-build-debug/
+cmake-build-release/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Compiled objects
+*.o
+*.obj
+*.elf
+*.hex
+*.bin
+*.map
+*.list
+*.d
+
+# Precompiled headers
+*.gch
+*.pch
+
+# Libraries
+*.a
+*.lib
+
+# Debug
+*.launch
+*.gdb
+*.bat
+openocd.cfg
+DEBUG_README.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CubeMX generated (可选，如果你想重新生成)
+# Drivers/
+# Middlewares/
+# USB_DEVICE/
+# Core/

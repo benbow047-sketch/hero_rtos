@@ -63,8 +63,8 @@ elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
     message(STATUS "Maximum optimization for size")
     add_compile_options(-Os)
 else ()
-    message(STATUS "Minimal optimization, debug info included")
-    add_compile_options(-Og -g)
+    message(STATUS "No optimization, debug info included")
+    add_compile_options(-O0 -gdwarf-2 -g)
 endif ()
 
 include_directories(Core/Inc Drivers/STM32H7xx_HAL_Driver/Inc Drivers/STM32H7xx_HAL_Driver/Inc/Legacy Drivers/CMSIS/Device/ST/STM32H7xx/Include Drivers/CMSIS/Include USB_DEVICE/App USB_DEVICE/Target Middlewares/ST/STM32_USB_Device_Library/Core/Inc Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc Middlewares/Third_Party/FreeRTOS/Source/include Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F Drivers/CMSIS/RTOS2/Include)
@@ -72,6 +72,22 @@ include_directories(
         USER
         USER/Module
         USER/Module/Msg
+        USER/Module/Bmi088
+        USER/Module/Dwt
+        USER/Algorithm
+        USER/Algorithm/PID
+        USER/Algorithm/QuaternionEKF
+        USER/Algorithm/kalman_filter
+        USER/Algorithm/Filter
+        USER/Algorithm/Ramp
+        USER/Algorithm/User_Lib
+        USER/Algorithm/arm_math
+        USER/Algorithm/Crc
+        USER/Algorithm/Delay
+        USER/Algorithm/Fifo
+        USER/Algorithm/MahonyAHRS
+        USER/Algorithm/MyType
+        USER/Algorithm/VQF
         USER/Task/Ins
         USER/Task/Motor
         USER/Task/Cmd
@@ -99,7 +115,7 @@ add_link_options(-T ${LINKER_SCRIPT})
 add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
 
 ## 链接DSP矩阵运算库,libarm_cortexM7lfsp_math单精度DSP库，
-#target_link_libraries(${PROJECT_NAME}.elf ${CMAKE_SOURCE_DIR}/Middlewares/ST/ARM/DSP/Lib/libarm_cortexM7lfsp_math.a)
+target_link_libraries(${PROJECT_NAME}.elf ${CMAKE_SOURCE_DIR}/Middlewares/ST/ARM/DSP/Lib/libarm_cortexM7lfsp_math.a)
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
