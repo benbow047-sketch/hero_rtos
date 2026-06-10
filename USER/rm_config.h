@@ -59,9 +59,15 @@ extern FDCAN_HandleTypeDef hfdcan3;
 
 /* ------------------------------------------------------- IMU相关 ------------------------------------------------ */
 // 加速度计零偏值 需定期校准后手动修改,此为40度实测
-#define GxOFFSET  0.000969390618f//0.00000110679f
-#define GyOFFSET  0.00278034038f//-0.00000229872f
-#define GzOFFSET  0.00124635932f//-0.00000085138f
+// 陀螺仪零偏默认值（手动标定，启动校准会覆盖）
+#define GxOFFSET_DEFAULT  0.000969390618f
+#define GyOFFSET_DEFAULT  0.00278034038f
+#define GzOFFSET_DEFAULT  0.00124635932f
+
+// 运行时变量（启动校准或静止检测会更新）
+extern float GxOFFSET;
+extern float GyOFFSET;
+extern float GzOFFSET;
 //static float gyro_init[3] = {0};//用于零漂矫正，见ins线程
 
 
