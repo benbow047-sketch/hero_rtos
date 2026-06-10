@@ -21,6 +21,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "main.h"
+#include "FreeRTOS.h"
 #include "cmsis_os2.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -80,6 +81,7 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
+
 
   /* USER CODE BEGIN RTOS_THREADS */
 
@@ -171,6 +173,8 @@ void MX_FREERTOS_Init(void) {
 
 }
 
+
 /* USER CODE BEGIN Application */
 
 /* USER CODE END Application */
+

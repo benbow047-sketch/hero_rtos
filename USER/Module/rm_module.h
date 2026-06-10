@@ -15,10 +15,10 @@
 #include "drv_msg.h"
 
 /* ---- DJI 电机驱动 ---- */
-// #include "dj_motor.h"
+#include "dj_motor.h"
 
 /* ---- FDCAN 驱动 ---- */
-// #include "bsp_fdcan.h"
+#include "bsp_fdcan.h"
 
 /* ---- BMI088 IMU 驱动 ---- */
 #include "BMI088driver.h"
