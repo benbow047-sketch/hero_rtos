@@ -10,6 +10,12 @@
 #include "rm_module.h"
 #include "cmsis_os2.h"
 
+/* ----------------------------------------------- 遥控器测试变量 --------------------------------------------------- */
+volatile int16_t rc_ch1 = 0, rc_ch2 = 0, rc_ch3 = 0, rc_ch4 = 0;
+volatile uint8_t rc_sw1 = 0, rc_sw2 = 0;
+volatile int16_t rc_mouse_x = 0, rc_mouse_y = 0;
+volatile uint8_t rc_mouse_l = 0, rc_mouse_r = 0;
+
 /* ----------------------------------------------- 线程间通讯话题相关 ---------------------------------------------------- */
 static struct gimbal_cmd_msg gim_cmd;
 static struct chassis_cmd_msg chassis_cmd;
@@ -38,6 +44,18 @@ void CmdTask_Entry(void *argument)
     for(;;)
     {
         cmd_sub_pull();
+
+        // 读取遥控器数据（调试用）
+        rc_ch1 = dbus_data_fdb.ch1;
+        rc_ch2 = dbus_data_fdb.ch2;
+        rc_ch3 = dbus_data_fdb.ch3;
+        rc_ch4 = dbus_data_fdb.ch4;
+        rc_sw1 = dbus_data_fdb.sw1;
+        rc_sw2 = dbus_data_fdb.sw2;
+        rc_mouse_x = dbus_data_fdb.mouse.x;
+        rc_mouse_y = dbus_data_fdb.mouse.y;
+        rc_mouse_l = dbus_data_fdb.mouse.l;
+        rc_mouse_r = dbus_data_fdb.mouse.r;
 
         // TODO: 遥控器状态机处理
 

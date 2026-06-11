@@ -27,8 +27,13 @@
 #include "drv_dwt.h"
 
 /* ---- 遥控器 ---- */
-// #include "rc_dbus.h"
-// #include "keyboard.h"
+#ifdef BSP_USING_RC_DBUS
+#include "rc_dbus.h"
+#else
+#include "rc_sbus.h"
+#endif
+
+#include "keyboard.h"
 
 /* ---- 裁判系统 ---- */
 // #include "referee_system.h"

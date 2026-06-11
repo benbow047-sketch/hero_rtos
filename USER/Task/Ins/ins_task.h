@@ -14,9 +14,9 @@
 #define INS_PITCH_ADDRESS_OFFSET  1
 #define INS_ROLL_ADDRESS_OFFSET   2
 
-#define X 0
-#define Y 1
-#define Z 2
+#define INS_X 0
+#define INS_Y 1
+#define INS_Z 2
 
 /**
  * @brief IMU 原始数据 + 解算结果
