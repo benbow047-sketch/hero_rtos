@@ -61,6 +61,7 @@ void FDCAN1_IT1_IRQHandler(void);
 void FDCAN2_IT1_IRQHandler(void);
 void SPI2_IRQHandler(void);
 void USART1_IRQHandler(void);
+void UART5_IRQHandler(void);
 void DMA2_Stream0_IRQHandler(void);
 void DMA2_Stream1_IRQHandler(void);
 void OTG_HS_IRQHandler(void);

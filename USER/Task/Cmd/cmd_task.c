@@ -38,6 +38,7 @@ static void cmd_sub_pull(void);
 /* ------------------------------------------------- cmd线程入口 ------------------------------------------------------ */
 void CmdTask_Entry(void *argument)
 {
+    dbus_data_init();
     cmd_pub_init();
     cmd_sub_init();
 
