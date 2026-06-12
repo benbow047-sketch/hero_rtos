@@ -58,7 +58,17 @@ void CmdTask_Entry(void *argument)
         rc_mouse_l = dbus_data_fdb.mouse.l;
         rc_mouse_r = dbus_data_fdb.mouse.r;
 
-        // TODO: 遥控器状态机处理
+        // 测试：sw2==RC_MI 时底盘前进
+        if (dbus_data_fdb.sw2 == RC_MI)
+        {
+            chassis_cmd.ctrl_mode = CHASSIS_OPEN_LOOP;
+            chassis_cmd.vx = 300;
+        }
+        else
+        {
+            chassis_cmd.ctrl_mode = CHASSIS_RELAX;
+            chassis_cmd.vx = 0;
+        }
 
         cmd_pub_push();
         osDelay(1);

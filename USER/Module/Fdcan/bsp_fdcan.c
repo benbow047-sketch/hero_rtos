@@ -26,15 +26,13 @@ void bsp_can_init(void)
                                  |FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_WATERMARK;
 
     can_filter_init();
-    HAL_FDCAN_Start(&hfdcan1);                               //开启FDCAN
+
+    HAL_FDCAN_Start(&hfdcan1);
     HAL_FDCAN_Start(&hfdcan2);
     HAL_FDCAN_Start(&hfdcan3);
+
     HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_RXActiveITs, 0);
-
-
     HAL_FDCAN_ActivateNotification(&hfdcan2, FDCAN_RXActiveITs, 0);
-
-
     HAL_FDCAN_ActivateNotification(&hfdcan3, FDCAN_RXActiveITs, 0);
 
 }
@@ -237,7 +235,7 @@ uint16_t rec_id1;
 void fdcan1_rx_callback(void)
 {
     fdcanx_receive_fifo0(&hfdcan1, &rec_id1, rx_data1);
-    //dji_motot_rx_callback(1,rec_id1, rx_data1);
+    dji_motot_rx_callback(1,rec_id1, rx_data1);
     #ifdef BSP_USING_SUPERCAP_TASK
     supercap_can_rx_callback(rec_id1, rx_data1);
     #endif /* BSP_USING_SUPERCAP_TASK */
