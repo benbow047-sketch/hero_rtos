@@ -21,7 +21,7 @@ typedef enum
 } gimbal_mode_e;
 
 /**
- * @brief 云台归中状态枚举
+ * @brief 云台归中状态
  */
 typedef enum
 {
@@ -38,6 +38,8 @@ typedef enum
     RELATIVE_ANGLE_OK = 1,     //传输完成
 } auto_relative_angle_status_e;
 
+#ifdef BSP_USING_GIMBAL_TASK
 void GimbalTask_Entry(void *argument);
+#endif
 
 #endif // GIMBAL_TASK_H

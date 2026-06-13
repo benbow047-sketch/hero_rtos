@@ -17,6 +17,7 @@ void MotorTask_Entry(void *argument)
 {
     static float motor_start;
 
+    bsp_can_init();
 
     for(;;)
     {

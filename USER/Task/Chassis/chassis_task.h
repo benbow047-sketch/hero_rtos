@@ -22,6 +22,8 @@ typedef enum
     CHASSIS_AUTO           //底盘自动模式
 } chassis_mode_e;
 
+#ifdef BSP_USING_CHASSIS_TASK
 void ChassisTask_Entry(void *argument);
+#endif
 
 #endif // CHASSIS_TASK_H

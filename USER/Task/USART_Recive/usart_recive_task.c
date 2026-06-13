@@ -5,8 +5,8 @@
  * @author Jasper
  */
 
-#include "usart_recive_task.h"
 #include "rm_task.h"
+#include "usart_recive_task.h"
 #include "rm_module.h"
 #include "cmsis_os2.h"
 #include "FreeRTOS.h"

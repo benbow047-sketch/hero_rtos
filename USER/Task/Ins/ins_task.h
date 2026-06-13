@@ -60,6 +60,8 @@ typedef struct
     float roll;
 } imu_param_t;
 
+#ifdef BSP_USING_INS_TASK
 void InsTask_Entry(void *argument);
+#endif
 
 #endif // INS_TASK_H

@@ -32,16 +32,6 @@ typedef enum
 } trigger_mode_e;
 
 /**
- * @brief 发射弹频
- */
-typedef enum
-{
-    LOW_FREQUENCY=1,
-    MIDDLE_FREQUENCY=2,
-    HIGH_FREQUENCY=3,
-} shoot_frequency_e;
-
-/**
  * @brief 发射器状态反馈
  */
 typedef enum
@@ -51,15 +41,8 @@ typedef enum
     SHOOT_WAITING=2,     //等待中
 } shoot_back_e;
 
-/**
- * @brief 发射器角度继承
- */
-typedef enum
-{
-    SHOOT_ANGLE_CONTINUE=0,  //角度为连续状态
-    SHOOT_ANGLE_SINGLE=1,    //角度为单次状态
-} shoot_angle_inherit_e;
-
+#ifdef BSP_USING_SHOOT_TASK
 void ShootTask_Entry(void *argument);
+#endif
 
 #endif // SHOOT_TASK_H

@@ -24,37 +24,17 @@
 #define BSP_USING_REFEREE_TASK
 #define BSP_USING_SUPERCAP_TASK
 
-/* ==================== Task Headers ==================== */
-#ifdef BSP_USING_INS_TASK
-#include "ins_task.h"
-#endif
-#ifdef BSP_USING_MOTOR_TASK
-#include "motor_task.h"
-#endif
-#ifdef BSP_USING_CMD_TASK
-#include "cmd_task.h"
-#endif
-#ifdef BSP_USING_CHASSIS_TASK
+/* ==================== Task Headers（始终包含，枚举定义在头文件里） ==================== */
 #include "chassis_task.h"
-#endif
-#ifdef BSP_USING_GIMBAL_TASK
 #include "gimbal_task.h"
-#endif
-#ifdef BSP_USING_SHOOT_TASK
 #include "shoot_task.h"
-#endif
-#ifdef BSP_USING_TRANSMISSION_TASK
+#include "ins_task.h"
+#include "motor_task.h"
+#include "cmd_task.h"
 #include "transmission_task.h"
-#endif
-#ifdef BSP_USING_USARTREC_TASK
 #include "usart_recive_task.h"
-#endif
-#ifdef BSP_USING_REFEREE_TASK
 #include "referee_task.h"
-#endif
-#ifdef BSP_USING_SUPERCAP_TASK
 #include "supercap_task.h"
-#endif
 
 /* ==================== Message Structures ==================== */
 

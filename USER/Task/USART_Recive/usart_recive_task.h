@@ -8,6 +8,8 @@
 #ifndef USART_RECIVE_TASK_H
 #define USART_RECIVE_TASK_H
 
+#ifdef BSP_USING_USARTREC_TASK
 void USARTRecTask_Entry(void *argument);
+#endif
 
 #endif // USART_RECIVE_TASK_H
