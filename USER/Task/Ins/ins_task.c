@@ -32,16 +32,6 @@ static imu_param_t imu_param;
 static float acc_init[3] = {0};
 static float gyro_init[3] = {0};
 
-/* ----------------------------------------------- 零偏校准 --------------------------------------------------- */
-float GxOFFSET = GxOFFSET_DEFAULT;
-float GyOFFSET = GyOFFSET_DEFAULT;
-float GzOFFSET = GzOFFSET_DEFAULT;
-
-// 静止检测 + 连续零偏估计
-static float bias_lp[3] = {0};
-static const float REST_GYRO_TH = 0.05f;   // 静止阈值 (rad/s)
-static const float BIAS_ALPHA = 0.001f;     // 零偏更新系数
-
 const float xb[3] = {1, 0, 0};
 const float yb[3] = {0, 1, 0};
 const float zb[3] = {0, 0, 1};
@@ -79,34 +69,6 @@ void InsTask_Entry(void *argument)
         ;
     }
 
-    /* 启动时校准陀螺仪零偏（需静止500ms） */
-    {
-        float gyro_sum[3] = {0};
-        uint8_t is_rest = 1;
-        for (int i = 0; i < 500; i++)
-        {
-            BMI088_read(ins.gyro, ins.accel, &temp);
-            float norm = sqrtf(ins.gyro[0] * ins.gyro[0] +
-                               ins.gyro[1] * ins.gyro[1] +
-                               ins.gyro[2] * ins.gyro[2]);
-            if (norm > REST_GYRO_TH * 3)
-                is_rest = 0;
-            gyro_sum[0] += ins.gyro[0];
-            gyro_sum[1] += ins.gyro[1];
-            gyro_sum[2] += ins.gyro[2];
-            osDelay(1);
-        }
-        if (is_rest)
-        {
-            GxOFFSET = gyro_sum[0] / 500.0f;
-            GyOFFSET = gyro_sum[1] / 500.0f;
-            GzOFFSET = gyro_sum[2] / 500.0f;
-        }
-        bias_lp[0] = GxOFFSET;
-        bias_lp[1] = GyOFFSET;
-        bias_lp[2] = GzOFFSET;
-    }
-
     ins_init();
     ins_pub_init();
 
@@ -121,20 +83,6 @@ void InsTask_Entry(void *argument)
         ins.gyro[0] -= GxOFFSET;
         ins.gyro[1] -= GyOFFSET;
         ins.gyro[2] -= GzOFFSET;
-
-        // 静止检测：持续更新零偏估计
-        {
-            float gyro_raw[3] = {ins.gyro[0] + GxOFFSET, ins.gyro[1] + GyOFFSET, ins.gyro[2] + GzOFFSET};
-            float gyro_norm = sqrtf(gyro_raw[0]*gyro_raw[0] + gyro_raw[1]*gyro_raw[1] + gyro_raw[2]*gyro_raw[2]);
-            if (gyro_norm < REST_GYRO_TH) {
-                bias_lp[0] += BIAS_ALPHA * (gyro_raw[0] - bias_lp[0]);
-                bias_lp[1] += BIAS_ALPHA * (gyro_raw[1] - bias_lp[1]);
-                bias_lp[2] += BIAS_ALPHA * (gyro_raw[2] - bias_lp[2]);
-                GxOFFSET = bias_lp[0];
-                GyOFFSET = bias_lp[1];
-                GzOFFSET = bias_lp[2];
-            }
-        }
 
         // IMU 安装校正
         IMU_Param_Correction(&imu_param, ins.gyro, ins.accel);

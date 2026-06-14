@@ -41,6 +41,15 @@ typedef enum
     SHOOT_WAITING=2,     //等待中
 } shoot_back_e;
 
+/**
+ * @brief 发射器角度继承
+ */
+typedef enum
+{
+    SHOOT_ANGLE_CONTINUE=0,  //角度为连续状态
+    SHOOT_ANGLE_SINGLE=1,    //角度为单次状态
+} shoot_angle_inherit_e;
+
 #ifdef BSP_USING_SHOOT_TASK
 void ShootTask_Entry(void *argument);
 #endif

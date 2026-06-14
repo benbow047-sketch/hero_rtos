@@ -92,6 +92,24 @@ void GimbalTask_Entry(void *argument)
         for (uint8_t i = 0; i < GIM_MOTOR_NUM; i++)
             dji_motor_enable(gim_motor[i]);
 
+#ifdef GIMBAL_DEBUG_MODE
+        /* 云台调试模式：跳过状态机，单独测试yaw或pitch */
+        gim_fdb.back_mode = BACK_IS_OK;
+#ifdef GIMBAL_DEBUG_YAW
+        gim_motor_ref[YAW] = gim_cmd.yaw;
+        gim_motor_ref[PITCH] = 0;
+        dji_motor_relax(gim_motor[PITCH]);
+#endif
+#ifdef GIMBAL_DEBUG_PITCH
+        gim_motor_ref[YAW] = 0;
+        gim_motor_ref[PITCH] = gim_cmd.pitch;
+        dji_motor_relax(gim_motor[YAW]);
+#endif
+        gimbal_pub_push();
+        osDelay(1);
+        continue;  // 跳过下面的状态机
+#endif
+
         switch (gim_cmd.ctrl_mode)
         {
             case GIMBAL_RELAX:

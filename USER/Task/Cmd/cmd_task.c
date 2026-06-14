@@ -74,9 +74,8 @@ float Ballistic;
 static int cnt_flag = 0;
 static int deploy_flag = 0;
 
-// TODO: 移植 transmission 任务后删除这些临时定义
 extern auto_relative_angle_status_e auto_relative_angle_status;
-uint8_t *r_buffer_point = NULL;
+extern uint8_t *r_buffer_point;
 SemaphoreHandle_t sbus_cmd_mutex = NULL;
 
 static void remote_to_cmd_dbus(void);
@@ -155,9 +154,19 @@ static void remote_to_cmd_dbus(void)
     chassis_cmd.offset_angle = gim_fdb.yaw_relative_angle;
 
 #ifndef BSP_USING_GIMBAL_TASK
-    /* 云台任务未启用时，底盘开环直控，跳过状态机 */
-    chassis_cmd.ctrl_mode = CHASSIS_OPEN_LOOP;
-    chassis_cmd.vw = 0;
+    /* 云台任务未启用时，底盘开环直控 */
+    if (rc_now->sw2 == RC_UP)
+    {
+        chassis_cmd.ctrl_mode = CHASSIS_RELAX;
+        chassis_cmd.vx = 0;
+        chassis_cmd.vy = 0;
+        chassis_cmd.vw = 0;
+    }
+    else
+    {
+        chassis_cmd.ctrl_mode = CHASSIS_OPEN_LOOP;
+        chassis_cmd.vw = (float)rc_now->ch3 * CHASSIS_RC_MOVE_RATIO_R / RC_DBUS_MAX_VALUE * MAX_CHASSIS_VR_SPEED;
+    }
     return;
 #endif
 

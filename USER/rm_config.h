@@ -59,15 +59,10 @@ extern FDCAN_HandleTypeDef hfdcan3;
 
 /* ------------------------------------------------------- IMU相关 ------------------------------------------------ */
 // 加速度计零偏值 需定期校准后手动修改,此为40度实测
-// 陀螺仪零偏默认值（手动标定，启动校准会覆盖）
-#define GxOFFSET_DEFAULT  0.000969390618f
-#define GyOFFSET_DEFAULT  0.00278034038f
-#define GzOFFSET_DEFAULT  0.00124635932f
-
-// 运行时变量（启动校准或静止检测会更新）
-extern float GxOFFSET;
-extern float GyOFFSET;
-extern float GzOFFSET;
+// 陀螺仪零偏（手动标定，和旧工程一致）
+#define GxOFFSET  0.000969390618f
+#define GyOFFSET  0.00278034038f
+#define GzOFFSET  0.00124635932f
 //static float gyro_init[3] = {0};//用于零漂矫正，见ins线程
 
 
@@ -154,7 +149,7 @@ extern float GzOFFSET;
 #define CHASSIS_MAX_V_MOTOR             16384
 // TODO: 参数待整定
 /* 跟随云台PID */
-#define CHASSIS_KP_V_FOLLOW             0.045f//0.1205f//0.1f
+#define CHASSIS_KP_V_FOLLOW             0.45f//0.045f//0.1205f//0.1f
 #define CHASSIS_KI_V_FOLLOW             0//0.001f
 #define CHASSIS_KD_V_FOLLOW             0.005f//0.0008f
 #define CHASSIS_INTEGRAL_V_FOLLOW       0
@@ -181,9 +176,9 @@ extern float GzOFFSET;
 
 
 /* pitch轴最大仰角 */
-#define PIT_ANGLE_MAX        8.0f//15.0f
+#define PIT_ANGLE_MAX        4.0f//8.0f//15.0f
 /* pitch轴最大俯角 */
-#define PIT_ANGLE_MIN        -10//-18.0f
+#define PIT_ANGLE_MIN        -5.0f//-10//-18.0f
 
 /* 云台控制周期 (ms) */
 #define GIMBAL_PERIOD 1
@@ -222,7 +217,7 @@ extern float GzOFFSET;
 /* 云台PITCH轴电机PID参数 /*
 /* imu速度环 */
 /* imu速度环 */
-#define PITCH_KP_V_IMU           2000//800//1000//3000
+#define PITCH_KP_V_IMU           1500//2000//800//1000//3000
 #define PITCH_KI_V_IMU           40//0//50
 #define PITCH_KD_V_IMU           0.1//0.001
 #define PITCH_INTEGRAL_V_IMU     1000

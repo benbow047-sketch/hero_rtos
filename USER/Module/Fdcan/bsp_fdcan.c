@@ -255,7 +255,7 @@ uint16_t rec_id3;
 void fdcan3_rx_callback(void)
 {
     fdcanx_receive_fifo0(&hfdcan3, &rec_id3, rx_data3);
-    //dji_motot_rx_callback(3,rec_id3, rx_data3);
+    dji_motot_rx_callback(3,rec_id3, rx_data3);
     #ifdef BSP_USING_SUPERCAP_TASK
     supercap_can_rx_callback(rec_id3, rx_data3);
     #endif /* BSP_USING_SUPERCAP_TASK */
