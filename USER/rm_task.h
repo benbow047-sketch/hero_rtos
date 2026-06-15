@@ -13,6 +13,7 @@
 #include "rm_config.h"
 
 /* ==================== Task Switches ==================== */
+
 #define BSP_USING_INS_TASK
 #define BSP_USING_MOTOR_TASK
 #define BSP_USING_CMD_TASK
