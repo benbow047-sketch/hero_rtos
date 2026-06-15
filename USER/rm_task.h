@@ -26,8 +26,8 @@
 #define BSP_USING_SUPERCAP_TASK
 
 /* ==================== Debug Switches ==================== */
-// #define GIMBAL_DEBUG_MODE      // 启用云台调试模式
-// #define GIMBAL_DEBUG_YAW       // 调试yaw轴（和PITCH二选一）
+ #define GIMBAL_DEBUG_MODE      // 启用云台调试模式
+ #define GIMBAL_DEBUG_YAW       // 调试yaw轴（和PITCH二选一）
 // #define GIMBAL_DEBUG_PITCH     // 调试pitch轴（和YAW二选一）
 
 /* ==================== Task Headers（始终包含，枚举定义在头文件里） ==================== */

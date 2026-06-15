@@ -82,5 +82,6 @@ void dbus_data_init();
 /* 解析后的遥控器数据传递给keyboard */
 extern rc_dbus_obj_t rc_dbus_obj[2];
 extern rc_dbus_obj_t dbus_data_fdb;
+extern volatile uint32_t dbus_heartbeat;  // 每收到有效帧+1
 
 #endif /* _RC_DBUS_H */

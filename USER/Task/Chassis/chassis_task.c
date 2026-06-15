@@ -51,7 +51,6 @@ void ChassisTask_Entry(void *argument)
     chassis_pub_init();
     chassis_sub_init();
     chassis_motor_init();
-    bsp_can_init();
 
     for(;;)
     {
