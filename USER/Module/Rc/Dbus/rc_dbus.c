@@ -18,12 +18,14 @@ static SemaphoreHandle_t  sbus_mutex;
 rc_dbus_obj_t rc_dbus_obj[2];   // [0]:当前数据NOW,[1]:上一次的数据LAST
 
 rc_dbus_obj_t dbus_data_fdb;
+volatile uint32_t dbus_heartbeat = 0;
 
 void dbus_data_init()
 {
     memset(&rc_dbus_obj[NOW], 0, sizeof(rc_dbus_obj_t));
     memset(&rc_dbus_obj[LAST], 0, sizeof(rc_dbus_obj_t));
     memset(&dbus_data_fdb, 0, sizeof(rc_dbus_obj_t));
+    dbus_heartbeat = 0;
     sbus_mutex = xSemaphoreCreateMutex();  // 初始化互斥锁
 }
 void dbus_data_unpack(uint8_t *data, uint16_t len){
@@ -78,5 +80,6 @@ void dbus_data_unpack(uint8_t *data, uint16_t len){
         xSemaphoreTake(sbus_mutex, portMAX_DELAY);
         memcpy(&dbus_data_fdb, &rc_dbus_obj[NOW], sizeof(rc_dbus_obj_t));
         xSemaphoreGive(sbus_mutex);
+        dbus_heartbeat++;
     }
 }

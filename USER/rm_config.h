@@ -190,16 +190,16 @@ extern FDCAN_HandleTypeDef hfdcan3;
 /* -------------------------------- 云台电机PID参数 ------------------------------- */
 /* 云台yaw轴电机PID参数 */
 /* imu速度环 */
-#define YAW_KP_V_IMU             10000//5000//9250//12000
-#define YAW_KI_V_IMU             200//200
+#define YAW_KP_V_IMU             30000//5000//9250//12000
+#define YAW_KI_V_IMU             600//200
 #define YAW_KD_V_IMU             0.001f//0.01f//0.005f
-#define YAW_INTEGRAL_V_IMU       200//1000 //2000
+#define YAW_INTEGRAL_V_IMU       2000//1000 //2000
 #define YAW_MAX_V_IMU            25000
 /* imu角度环 */
-#define YAW_KP_A_IMU             0.15f//0.1f//0.15f   //降低响应速度减小超调以提升稳定性
+#define YAW_KP_A_IMU             0.25f//0.15f//0.1f//0.15f   //降低响应速度减小超调以提升稳定性
 #define YAW_KI_A_IMU             0.003//0.001f
 #define YAW_KD_A_IMU             0.003f//0.002f //0.005响应好，但是归中有振动
-#define YAW_INTEGRAL_A_IMU       0.2f
+#define YAW_INTEGRAL_A_IMU       1.0f//0.2f
 #define YAW_MAX_A_IMU            5
 /* auto速度环 */
 #define YAW_KP_V_AUTO            8500//12000

@@ -46,6 +46,10 @@ static float mouse_accumulate_y = 0;
 static float gyro_yaw_inherit;
 static float gyro_pitch_inherit;
 
+/* --------------------------------------------------- 调试yaw/pitch继承 ---------------------------------------------------- */
+static float debug_yaw_inherit = 0;
+static float debug_pitch_inherit = 0;
+
 /* --------------------------------------------------- 发射机构相关 ---------------------------------------------------- */
 static int trigger_flag = 0;
 static int reverse_cnt;
@@ -53,7 +57,11 @@ static int reverse_cnt;
 /* --------------------------------------------------- 遥控器相关 ---------------------------------------------------- */
 #ifdef BSP_USING_RC_DBUS
 extern rc_dbus_obj_t dbus_data_fdb;
+extern volatile uint32_t dbus_heartbeat;
 static rc_dbus_obj_t *rc_now, *rc_last;
+static uint32_t last_dbus_heartbeat = 0;
+static uint32_t last_dbus_tick = 0;
+#define DBUS_TIMEOUT_MS  500  // 遥控器信号丢失超时
 #else
 extern sbus_data_t sbus_data_fdb;
 #endif
@@ -153,6 +161,28 @@ static void remote_to_cmd_dbus(void)
     chassis_cmd.vy = (float)rc_now->ch2 * CHASSIS_RC_MOVE_RATIO_Y / RC_DBUS_MAX_VALUE * MAX_CHASSIS_VY_SPEED;
     chassis_cmd.offset_angle = gim_fdb.yaw_relative_angle;
 
+    /* 遥控器信号丢失检测 */
+    if (dbus_heartbeat != last_dbus_heartbeat)
+    {
+        last_dbus_heartbeat = dbus_heartbeat;
+        last_dbus_tick = xTaskGetTickCount();
+    }
+    else if ((xTaskGetTickCount() - last_dbus_tick) > pdMS_TO_TICKS(DBUS_TIMEOUT_MS))
+    {
+        gim_cmd.ctrl_mode = GIMBAL_RELAX;
+        chassis_cmd.ctrl_mode = CHASSIS_RELAX;
+        shoot_cmd.ctrl_mode = SHOOT_STOP;
+        shoot_cmd.friction_status = 0;
+        gim_cmd.pitch = 0;
+        gim_cmd.yaw = 0;
+        gyro_yaw_inherit = 0;
+        gyro_pitch_inherit = 0;
+        key_e_status = -1;
+        key_f_status = -1;
+        memset(r_buffer_point, 0, sizeof(*r_buffer_point));
+        return;
+    }
+
 #ifndef BSP_USING_GIMBAL_TASK
     /* 云台任务未启用时，底盘开环直控 */
     if (rc_now->sw2 == RC_UP)
@@ -173,6 +203,8 @@ static void remote_to_cmd_dbus(void)
     /* 云台命令 */
     if (gim_cmd.ctrl_mode == GIMBAL_GYRO)
     {
+        if (gim_cmd.last_mode != GIMBAL_GYRO)
+            gim_cmd.yaw = debug_yaw_inherit;  // 首次使能，继承RELAX时记录的yaw
         gim_cmd.yaw += (float)rc_now->ch3 * RC_RATIO * GIMBAL_RC_MOVE_RATIO_YAW + fx * KB_RATIO * GIMBAL_PC_MOVE_RATIO_YAW;
         gim_cmd.pitch += (float)rc_now->ch4 * RC_RATIO * GIMBAL_RC_MOVE_RATIO_PIT - fy * KB_RATIO * GIMBAL_PC_MOVE_RATIO_PIT;
         gyro_yaw_inherit = gim_cmd.yaw;
@@ -199,8 +231,14 @@ static void remote_to_cmd_dbus(void)
     VAL_LIMIT(gim_cmd.pitch, PIT_ANGLE_MIN, PIT_ANGLE_MAX);
     if (gim_cmd.ctrl_mode == GIMBAL_INIT || gim_cmd.ctrl_mode == GIMBAL_RELAX)
     {
+        debug_yaw_inherit = ins_data.yaw;      // RELAX时记录当前yaw
+        debug_pitch_inherit = ins_data.pitch;   // RELAX时记录当前pitch
         gim_cmd.pitch = 0;
+        gyro_pitch_inherit = 0;
         gim_cmd.yaw = 0;
+        gyro_yaw_inherit = 0;
+        mouse_accumulate_x = 0;
+        mouse_accumulate_y = 0;
     }
 
     /*-------------------------------------------------底盘_云台状态机--------------------------------------------------------------*/
