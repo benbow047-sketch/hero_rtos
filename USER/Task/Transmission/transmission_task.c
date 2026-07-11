@@ -120,7 +120,7 @@ void Send_to_pc(RpyTypeDef data_r)
 {
     pack_Rpy(&data_r, (gim_fdb.yaw_offset_angle - ins_data.yaw), ins_data.pitch - gim_fdb.pit_offset_angle, openfire, team_color);
     Check_Rpy(&data_r);
-
+    CDC_Transmit_HS((uint8_t *)&data_r,  sizeof(data_r));
     if (gim_cmd.ctrl_mode == GIMBAL_AUTO && auto_relative_angle_status == RELATIVE_ANGLE_TRANS)
     {
         auto_relative_angle_status = RELATIVE_ANGLE_OK;

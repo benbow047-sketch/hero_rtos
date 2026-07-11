@@ -143,8 +143,8 @@ extern FDCAN_HandleTypeDef hfdcan3;
 /* --------------------------------- 底盘PID参数 -------------------------------- */
 /* 电机速度环 */
 #define CHASSIS_KP_V_MOTOR              3//5//3.2f
-#define CHASSIS_KI_V_MOTOR              0.0f//0.1f
-#define CHASSIS_KD_V_MOTOR              0.07//0.001f
+#define CHASSIS_KI_V_MOTOR              0.0f//0.01f//0.1f
+#define CHASSIS_KD_V_MOTOR              0.1f//0.07//0.001f
 #define CHASSIS_INTEGRAL_V_MOTOR        0
 #define CHASSIS_MAX_V_MOTOR             16384
 // TODO: 参数待整定
@@ -203,7 +203,7 @@ extern FDCAN_HandleTypeDef hfdcan3;
 #define YAW_MAX_A_IMU            5
 /* auto速度环 */
 #define YAW_KP_V_AUTO            8500//12000
-#define YAW_KI_V_AUTO            200
+#define YAW_KI_V_AUTO            0//200
 #define YAW_KD_V_AUTO            0.005f
 #define YAW_INTEGRAL_V_AUTO      2000
 #define YAW_MAX_V_AUTO           25000
