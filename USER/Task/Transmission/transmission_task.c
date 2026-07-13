@@ -28,6 +28,35 @@ static void trans_pub_init(void);
 static void trans_sub_pull(void);
 static void trans_pub_push(void);
 
+/* ----------------------------------------------- MPC方案B：安全读取小端int32 --------------------------------------------------- */
+static int32_t read_i32_le(const uint8_t *data)
+{
+    uint32_t value =
+        ((uint32_t)data[0]) |
+        ((uint32_t)data[1] << 8) |
+        ((uint32_t)data[2] << 16) |
+        ((uint32_t)data[3] << 24);
+    return (int32_t)value;
+}
+
+/* ----------------------------------------------- MPC方案B：接收校验 --------------------------------------------------- */
+static uint8_t verify_frame(const uint8_t *frame, uint8_t len)
+{
+    uint8_t sum = 0;
+    uint8_t add = 0;
+
+    for (uint8_t i = 0; i < len; i++)
+    {
+        sum += frame[i];
+        add += sum;
+    }
+
+    if (frame[len] != sum || frame[len + 1] != add)
+        return 0;
+
+    return 1;
+}
+
 /* ----------------------------------------------- 自瞄通信相关 --------------------------------------------------- */
 uint8_t *r_buffer_point;
 
@@ -50,6 +79,7 @@ RpyTypeDef rpy_tx_data = {
 };
 RpyTypeDef rpy_rx_data;
 static uint32_t heart_dt;
+uint32_t vision_last_rx_ms;  // MPC方案B：最后一次收到有效视觉数据的时间
 TeamColor team_color;
 
 extern auto_relative_angle_status_e auto_relative_angle_status;
@@ -118,7 +148,9 @@ static void trans_pub_push(void)
 /* ----------------------------------------------- 发送数据到上位机 --------------------------------------------------- */
 void Send_to_pc(RpyTypeDef data_r)
 {
-    pack_Rpy(&data_r, (gim_fdb.yaw_offset_angle - ins_data.yaw), ins_data.pitch - gim_fdb.pit_offset_angle, openfire, team_color);
+    float yaw_vel = ins_data.gyro[INS_Z];  // yaw轴角速度（rad/s）
+    float yaw_acc = 1;  // yaw轴角加速度（暂未计算）
+    pack_Rpy(&data_r, (gim_fdb.yaw_offset_angle - ins_data.yaw), ins_data.pitch - gim_fdb.pit_offset_angle, openfire, team_color, yaw_vel, yaw_acc);
     Check_Rpy(&data_r);
     CDC_Transmit_HS((uint8_t *)&data_r,  sizeof(data_r));
     if (gim_cmd.ctrl_mode == GIMBAL_AUTO && auto_relative_angle_status == RELATIVE_ANGLE_TRANS)
@@ -127,8 +159,8 @@ void Send_to_pc(RpyTypeDef data_r)
     }
 }
 
-/* ----------------------------------------------- 数据打包 --------------------------------------------------- */
-void pack_Rpy(RpyTypeDef *frame, float yaw, float pitch, float openfire, int team_color)
+/* ----------------------------------------------- 数据打包（MPC方案B：增加yaw_vel/yaw_acc） --------------------------------------------------- */
+void pack_Rpy(RpyTypeDef *frame, float yaw, float pitch, float openfire, int team_color, float yaw_vel, float yaw_acc)
 {
     int8_t rpy_tx_buffer[FRAME_RPY_LEN] = {0};
     int32_t rpy_data = 0;
@@ -155,26 +187,33 @@ void pack_Rpy(RpyTypeDef *frame, float yaw, float pitch, float openfire, int tea
     rpy_tx_buffer[14] = *gimbal_rpy >> 8;
     rpy_tx_buffer[15] = *gimbal_rpy >> 16;
     rpy_tx_buffer[16] = *gimbal_rpy >> 24;
+    /* MPC方案B：yaw_vel/yaw_acc 放在保留字节 */
+    rpy_data = yaw_vel * 1000;
+    rpy_tx_buffer[17] = *gimbal_rpy;
+    rpy_tx_buffer[18] = *gimbal_rpy >> 8;
+    rpy_tx_buffer[19] = *gimbal_rpy >> 16;
+    rpy_tx_buffer[20] = *gimbal_rpy >> 24;
+    rpy_data = yaw_acc * 1000;
+    rpy_tx_buffer[21] = *gimbal_rpy;
+    rpy_tx_buffer[22] = *gimbal_rpy >> 8;
+    rpy_tx_buffer[23] = *gimbal_rpy >> 16;
+    rpy_tx_buffer[24] = *gimbal_rpy >> 24;
 
-    memcpy(&frame->DATA[0], rpy_tx_buffer, 17);
+    memcpy(&frame->DATA[0], rpy_tx_buffer, FRAME_RPY_LEN);
     frame->LEN = FRAME_RPY_LEN;
 }
 
-/* ----------------------------------------------- 校验 --------------------------------------------------- */
+/* ----------------------------------------------- 校验（MPC方案B：逐字节计算） --------------------------------------------------- */
 void Check_Rpy(RpyTypeDef *frame)
 {
     uint8_t sum = 0;
     uint8_t add = 0;
+    uint8_t *raw = (uint8_t *)frame;
 
-    sum += frame->HEAD;
-    sum += frame->D_ADDR;
-    sum += frame->ID;
-    sum += frame->LEN;
-    add += sum;
-
-    for (int i = 0; i < frame->LEN; i++)
+    // 头4字节(HEAD+D_ADDR+ID+LEN) + DATA，逐字节计算
+    for (int i = 0; i < 4 + frame->LEN; i++)
     {
-        sum += frame->DATA[i];
+        sum += raw[i];
         add += sum;
     }
 
@@ -210,10 +249,19 @@ static void usb_input(uint8_t *Buf, uint32_t *Len)
                     switch (rpy_rx_data.ID)
                     {
                         case GIMBAL:
-                            trans_fdb.yaw = -(*(int32_t *)&rpy_rx_data.DATA[1] / 1000.0);
-                            trans_fdb.pitch = (*(int32_t *)&rpy_rx_data.DATA[5] / 1000.0);
-                            trans_fdb.roll = (*(int32_t *)&rpy_rx_data.DATA[9] / 1000.0);
+                        {
+                            // MPC方案B：解析 vision_mode + yaw/yaw_vel/yaw_acc + pitch
+                            trans_fdb.vision_mode = rpy_rx_data.DATA[0];
+
+                            trans_fdb.yaw     = -(read_i32_le(&rpy_rx_data.DATA[1])  / 1000.0f);
+                            trans_fdb.yaw_vel = -(read_i32_le(&rpy_rx_data.DATA[5])  / 1000.0f);
+                            trans_fdb.yaw_acc = -(read_i32_le(&rpy_rx_data.DATA[9])  / 1000.0f);
+
+                            trans_fdb.pitch   =  read_i32_le(&rpy_rx_data.DATA[13]) / 1000.0f;
+
+                            vision_last_rx_ms = dwt_get_time_ms();
                             break;
+                        }
 
                         case HEARTBEAT:
                             trans_fdb.heartbeat = (*(uint8_t *)&rpy_rx_data.DATA[0]);

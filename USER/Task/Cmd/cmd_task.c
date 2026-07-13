@@ -46,10 +46,6 @@ static float mouse_accumulate_y = 0;
 static float gyro_yaw_inherit;
 static float gyro_pitch_inherit;
 
-/* --------------------------------------------------- 调试yaw/pitch继承 ---------------------------------------------------- */
-static float debug_yaw_inherit = 0;
-static float debug_pitch_inherit = 0;
-
 /* --------------------------------------------------- 发射机构相关 ---------------------------------------------------- */
 static int trigger_flag = 0;
 static int reverse_cnt;
@@ -203,8 +199,6 @@ static void remote_to_cmd_dbus(void)
     /* 云台命令 */
     if (gim_cmd.ctrl_mode == GIMBAL_GYRO)
     {
-        if (gim_cmd.last_mode != GIMBAL_GYRO)
-            gim_cmd.yaw = debug_yaw_inherit;  // 首次使能，继承RELAX时记录的yaw
         gim_cmd.yaw += (float)rc_now->ch3 * RC_RATIO * GIMBAL_RC_MOVE_RATIO_YAW + fx * KB_RATIO * GIMBAL_PC_MOVE_RATIO_YAW;
         gim_cmd.pitch += (float)rc_now->ch4 * RC_RATIO * GIMBAL_RC_MOVE_RATIO_PIT - fy * KB_RATIO * GIMBAL_PC_MOVE_RATIO_PIT;
         gyro_yaw_inherit = gim_cmd.yaw;
@@ -231,8 +225,6 @@ static void remote_to_cmd_dbus(void)
     VAL_LIMIT(gim_cmd.pitch, PIT_ANGLE_MIN, PIT_ANGLE_MAX);
     if (gim_cmd.ctrl_mode == GIMBAL_INIT || gim_cmd.ctrl_mode == GIMBAL_RELAX)
     {
-        debug_yaw_inherit = ins_data.yaw;      // RELAX时记录当前yaw
-        debug_pitch_inherit = ins_data.pitch;   // RELAX时记录当前pitch
         gim_cmd.pitch = 0;
         gyro_pitch_inherit = 0;
         gim_cmd.yaw = 0;

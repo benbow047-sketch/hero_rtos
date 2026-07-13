@@ -97,7 +97,7 @@ typedef enum
 void TransmissionTask_Entry(void *argument);
 #endif
 
-void pack_Rpy(RpyTypeDef *frame, float yaw, float pitch, float roll, int team_color);
+void pack_Rpy(RpyTypeDef *frame, float yaw, float pitch, float openfire, int team_color, float yaw_vel, float yaw_acc);
 void Check_Rpy(RpyTypeDef *frame);
 void Send_to_pc(RpyTypeDef data_r);
 void process_usb_data(uint8_t *Buf, uint32_t *Len);

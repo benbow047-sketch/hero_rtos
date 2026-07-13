@@ -18,7 +18,7 @@
 #define BSP_USING_MOTOR_TASK
 #define BSP_USING_CMD_TASK
 #define BSP_USING_CHASSIS_TASK
-//#define BSP_USING_GIMBAL_TASK
+#define BSP_USING_GIMBAL_TASK
 #define BSP_USING_SHOOT_TASK
 #define BSP_USING_TRANSMISSION_TASK
 #define BSP_USING_USARTREC_TASK
@@ -26,8 +26,8 @@
 #define BSP_USING_SUPERCAP_TASK
 
 /* ==================== Debug Switches ==================== */
- #define GIMBAL_DEBUG_MODE      // 启用云台调试模式
- #define GIMBAL_DEBUG_YAW       // 调试yaw轴（和PITCH二选一）
+//#define GIMBAL_DEBUG_MODE      // 启用云台调试模式
+//#define GIMBAL_DEBUG_YAW       // 调试yaw轴（和PITCH二选一）
 // #define GIMBAL_DEBUG_PITCH     // 调试pitch轴（和YAW二选一）
 
 /* ==================== Task Headers（始终包含，枚举定义在头文件里） ==================== */
@@ -77,6 +77,8 @@ struct gimbal_cmd_msg
 {
     float yaw;
     float pitch;
+    float yaw_vel;                  // yaw 目标速度 (MPC方案B)
+    float yaw_acc;                  // yaw 目标加速度 (MPC方案B)
     gimbal_mode_e ctrl_mode;        // 当前云台控制模式
     gimbal_mode_e last_mode;        // 上一次云台控制模式
 };
@@ -144,6 +146,10 @@ struct trans_fdb_msg
     float angular_x;
     float angular_y;
     float angular_z;
+    /* MPC方案B 新增字段（仅yaw轴） */
+    uint8_t vision_mode;            // 视觉模式: 0=无目标, 1=有目标不开火, 2=有目标+请求开火
+    float yaw_vel;                  // yaw 目标速度
+    float yaw_acc;                  // yaw 目标加速度
 };
 
 #endif // RM_TASK_H
