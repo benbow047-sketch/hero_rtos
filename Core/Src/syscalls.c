@@ -29,6 +29,8 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/times.h>
+#include "rm_task.h"
+#include "usbd_cdc_if.h"
 
 
 /* Variables */
@@ -77,17 +79,21 @@ __attribute__((weak)) int _read(int file, char *ptr, int len)
   return len;
 }
 
-__attribute__((weak)) int _write(int file, char *ptr, int len)
+#ifdef DEBUG_VOFAMODE
+int _write(int file, char *ptr, int len)
 {
   (void)file;
-  int DataIdx;
-
-  for (DataIdx = 0; DataIdx < len; DataIdx++)
-  {
-    __io_putchar(*ptr++);
-  }
+  CDC_Transmit_HS((uint8_t *)ptr, len);
   return len;
 }
+#else
+int _write(int file, char *ptr, int len)
+{
+  (void)file;
+  (void)ptr;
+  return len;
+}
+#endif
 
 int _close(int file)
 {
@@ -174,3 +180,12 @@ int _execve(char *name, char **argv, char **env)
   errno = ENOMEM;
   return -1;
 }
+
+/* printf重定向到USB CDC（DEBUG_VOFAMODE模式） */
+#ifdef DEBUG_VOFAMODE
+int __io_putchar(int ch)
+{
+    CDC_Transmit_HS((uint8_t *)&ch, 1);
+    return ch;
+}
+#endif

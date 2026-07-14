@@ -26,6 +26,7 @@
 #define BSP_USING_SUPERCAP_TASK
 
 /* ==================== Debug Switches ==================== */
+// #define DEBUG_VOFAMODE  // 调试时取消注释，printf走CDC用于VOFA
 //#define GIMBAL_DEBUG_MODE      // 启用云台调试模式
 //#define GIMBAL_DEBUG_YAW       // 调试yaw轴（和PITCH二选一）
 // #define GIMBAL_DEBUG_PITCH     // 调试pitch轴（和YAW二选一）

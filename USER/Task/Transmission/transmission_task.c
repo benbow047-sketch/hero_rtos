@@ -13,6 +13,7 @@
 extern void MX_USB_DEVICE_Init(void);
 
 #define HEART_BEAT 500  // ms
+#define MPC_RX_FRAME_LEN  23  // MPC方案B：上位机→下位机帧长 = 4(头) + 17(payload) + 2(校验)
 
 /* ----------------------------------------------- 线程间通讯话题相关 --------------------------------------------------- */
 static struct gimbal_cmd_msg gim_cmd;
@@ -60,7 +61,7 @@ static uint8_t verify_frame(const uint8_t *frame, uint8_t len)
 /* ----------------------------------------------- 自瞄通信相关 --------------------------------------------------- */
 uint8_t *r_buffer_point;
 
-static uint8_t frame_buffer[sizeof(RpyTypeDef)];
+static uint8_t frame_buffer[MPC_RX_FRAME_LEN];
 static uint32_t frame_index = 0;
 static enum {
     WAIT_FOR_HEADER,
@@ -152,7 +153,17 @@ void Send_to_pc(RpyTypeDef data_r)
     float yaw_acc = 1;  // yaw轴角加速度（暂未计算）
     pack_Rpy(&data_r, (gim_fdb.yaw_offset_angle - ins_data.yaw), ins_data.pitch - gim_fdb.pit_offset_angle, openfire, team_color, yaw_vel, yaw_acc);
     Check_Rpy(&data_r);
+
+#ifdef DEBUG_VOFAMODE
+    /* VOFA调试输出（FireWater格式：逗号分隔） */
+    printf("%.2f,%.2f,%.4f,%.2f\n",
+           (gim_fdb.yaw_offset_angle - ins_data.yaw),
+           (ins_data.pitch - gim_fdb.pit_offset_angle),
+           yaw_vel, yaw_acc);
+#else
     CDC_Transmit_HS((uint8_t *)&data_r,  sizeof(data_r));
+#endif
+
     if (gim_cmd.ctrl_mode == GIMBAL_AUTO && auto_relative_angle_status == RELATIVE_ANGLE_TRANS)
     {
         auto_relative_angle_status = RELATIVE_ANGLE_OK;
@@ -242,9 +253,9 @@ static void usb_input(uint8_t *Buf, uint32_t *Len)
             case RECEIVING_DATA:
                 frame_buffer[frame_index++] = current_byte;
 
-                if (frame_index >= sizeof(RpyTypeDef))
+                if (frame_index >= MPC_RX_FRAME_LEN)
                 {
-                    memcpy(&rpy_rx_data, frame_buffer, sizeof(rpy_rx_data));
+                    memcpy(&rpy_rx_data, frame_buffer, MPC_RX_FRAME_LEN);
 
                     switch (rpy_rx_data.ID)
                     {
@@ -278,8 +289,8 @@ static void usb_input(uint8_t *Buf, uint32_t *Len)
                             break;
                     }
 
-                    memset(&rpy_rx_data, 0, sizeof(rpy_rx_data));
-                    memset(frame_buffer, 0, sizeof(frame_buffer));
+                    memset(&rpy_rx_data, 0, MPC_RX_FRAME_LEN);
+                    memset(frame_buffer, 0, MPC_RX_FRAME_LEN);
                     receive_state = WAIT_FOR_HEADER;
                 }
                 break;
